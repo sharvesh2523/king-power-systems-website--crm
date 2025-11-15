@@ -10,12 +10,10 @@ export default function Navbar() {
 
   const navLinks = [
     { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/services", label: "Services" },
-    { href: "/projects", label: "Projects" },
-    { href: "/subsidy", label: "PM Surya Ghar" },
-    { href: "/testimonials", label: "Testimonials" },
-    { href: "/contact", label: "Contact" },
+    { href: "#about", label: "About" },
+    { href: "#services", label: "Services" },
+    { href: "#projects", label: "Projects" },
+    { href: "#contact", label: "Contact" },
   ];
 
   return (
@@ -48,12 +46,12 @@ export default function Navbar() {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex items-center space-x-4">
-            <Link href="/roi-calculator">
+            <Link href="#roi-calculator">
               <Button variant="outline" className="border-[#0047BA] text-[#0047BA] hover:bg-[#0047BA] hover:text-white">
                 ROI Calculator
               </Button>
             </Link>
-            <Link href="/contact">
+            <Link href="#contact">
               <Button className="bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white hover:opacity-90">
                 Get Quote
               </Button>
@@ -84,12 +82,12 @@ export default function Navbar() {
                 </Link>
               ))}
               <div className="flex flex-col space-y-2 pt-4">
-                <Link href="/roi-calculator" onClick={() => setIsMenuOpen(false)}>
+                <Link href="#roi-calculator" onClick={() => setIsMenuOpen(false)}>
                   <Button variant="outline" className="w-full border-[#0047BA] text-[#0047BA]">
                     ROI Calculator
                   </Button>
                 </Link>
-                <Link href="/contact" onClick={() => setIsMenuOpen(false)}>
+                <Link href="#contact" onClick={() => setIsMenuOpen(false)}>
                   <Button className="w-full bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white">
                     Get Quote
                   </Button>

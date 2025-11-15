@@ -1,84 +1,83 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Phone, Mail, CheckCircle2, AlertCircle, Plus, Filter } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
 
 export default function FollowUpsPage() {
   const [filterType, setFilterType] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [followUps, setFollowUps] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState({
+    leadName: "",
+    type: "",
+    dueDate: "",
+    dueTime: "",
+    priority: "",
+    notes: ""
+  });
 
-  const followUps = [
-    {
-      id: 1,
-      leadName: "Rajesh Kumar",
-      type: "Phone Call",
-      dueDate: "2024-01-16",
-      dueTime: "2:00 PM",
-      priority: "High",
-      status: "Pending",
-      notes: "Discuss 5kW system pricing and PM Surya Ghar subsidy details",
-      lastContact: "2024-01-10"
-    },
-    {
-      id: 2,
-      leadName: "Priya Sharma",
-      type: "Email",
-      dueDate: "2024-01-16",
-      dueTime: "4:30 PM",
-      priority: "Medium",
-      status: "Pending",
-      notes: "Send detailed quote and installation timeline",
-      lastContact: "2024-01-12"
-    },
-    {
-      id: 3,
-      leadName: "Amit Patel",
-      type: "Site Visit",
-      dueDate: "2024-01-17",
-      dueTime: "10:00 AM",
-      priority: "High",
-      status: "Scheduled",
-      notes: "Site survey for 100kW commercial installation",
-      lastContact: "2024-01-13"
-    },
-    {
-      id: 4,
-      leadName: "Sneha Reddy",
-      type: "Phone Call",
-      dueDate: "2024-01-17",
-      dueTime: "3:00 PM",
-      priority: "Medium",
-      status: "Pending",
-      notes: "Follow up on quote acceptance",
-      lastContact: "2024-01-11"
-    },
-    {
-      id: 5,
-      leadName: "Vikram Singh",
-      type: "Email",
-      dueDate: "2024-01-18",
-      dueTime: "11:00 AM",
-      priority: "Low",
-      status: "Pending",
-      notes: "Share customer testimonials and project portfolio",
-      lastContact: "2024-01-09"
-    },
-    {
-      id: 6,
-      leadName: "Meera Iyer",
-      type: "Site Visit",
-      dueDate: "2024-01-15",
-      dueTime: "2:00 PM",
-      priority: "High",
-      status: "Completed",
-      notes: "Completed site survey, quote sent",
-      lastContact: "2024-01-15"
-    }
-  ];
+  // Load follow-ups from leads API
+  useEffect(() => {
+    const fetchFollowUps = async () => {
+      try {
+        const response = await fetch('/api/leads/bulk');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Create follow-ups from leads
+          const followUpData = data.data.map((lead: any, index: number) => ({
+            id: index + 1,
+            leadName: lead.name,
+            type: "Phone Call", // Default type
+            dueDate: "2024-01-20", // In a real app, this would be calculated
+            dueTime: "2:00 PM", // In a real app, this would be set by user
+            priority: "Medium",
+            status: lead.status === "New" ? "Pending" : 
+                   lead.status === "Contacted" ? "Scheduled" : 
+                   lead.status === "Won" ? "Completed" : "Pending",
+            notes: `Follow-up for ${lead.source || "lead"} from ${lead.source || "unknown source"}`,
+            lastContact: "2024-01-15" // In a real app, this would be the actual last contact date
+          }));
+          
+          setFollowUps(followUpData);
+        }
+      } catch (error) {
+        console.error('Error fetching follow-ups:', error);
+        toast.error('Failed to load follow-ups');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFollowUps();
+  }, []);
+
+  const handleScheduleFollowUp = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, this would be an API call
+    console.log("Scheduling follow-up:", formData);
+    toast.success("Follow-up scheduled successfully!");
+    setIsDialogOpen(false);
+    setFormData({
+      leadName: "",
+      type: "",
+      dueDate: "",
+      dueTime: "",
+      priority: "",
+      notes: ""
+    });
+  };
 
   const filteredFollowUps = filterType === "all" 
     ? followUps 
@@ -103,6 +102,14 @@ export default function FollowUpsPage() {
     "Site Visit": Calendar
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0047BA]"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -111,74 +118,114 @@ export default function FollowUpsPage() {
           <h1 className="text-3xl font-bold text-gray-900">Follow-Up Reminders</h1>
           <p className="text-gray-600 mt-1">Track and manage all your scheduled follow-ups</p>
         </div>
-        <Button className="bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white">
-          <Plus className="mr-2" size={18} />
-          Schedule Follow-up
-        </Button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white">
+              <Plus className="mr-2" size={18} />
+              Schedule Follow-up
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Schedule New Follow-up</DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleScheduleFollowUp} className="space-y-4 mt-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Lead Name *</Label>
+                  <Input 
+                    placeholder="Enter lead name" 
+                    className="mt-1" 
+                    value={formData.leadName}
+                    onChange={(e) => setFormData({...formData, leadName: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Follow-up Type *</Label>
+                  <Select value={formData.type} onValueChange={(value) => setFormData({...formData, type: value})}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Phone Call">Phone Call</SelectItem>
+                      <SelectItem value="Email">Email</SelectItem>
+                      <SelectItem value="Site Visit">Site Visit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Due Date *</Label>
+                  <Input 
+                    type="date" 
+                    className="mt-1" 
+                    value={formData.dueDate}
+                    onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label>Due Time *</Label>
+                  <Input 
+                    type="time" 
+                    className="mt-1" 
+                    value={formData.dueTime}
+                    onChange={(e) => setFormData({...formData, dueTime: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Priority *</Label>
+                  <Select value={formData.priority} onValueChange={(value) => setFormData({...formData, priority: value})}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select priority" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="High">High</SelectItem>
+                      <SelectItem value="Medium">Medium</SelectItem>
+                      <SelectItem value="Low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <Textarea 
+                  placeholder="Additional notes..." 
+                  rows={3} 
+                  className="mt-1" 
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" className="bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white">
+                  Schedule Follow-up
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total</p>
-                <p className="text-2xl font-bold text-gray-900 mt-1">{followUps.length}</p>
-              </div>
-              <Clock className="text-gray-400" size={32} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pending</p>
-                <p className="text-2xl font-bold text-orange-600 mt-1">
-                  {followUps.filter(f => f.status === "Pending").length}
-                </p>
-              </div>
-              <AlertCircle className="text-orange-400" size={32} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Scheduled</p>
-                <p className="text-2xl font-bold text-blue-600 mt-1">
-                  {followUps.filter(f => f.status === "Scheduled").length}
-                </p>
-              </div>
-              <Calendar className="text-blue-400" size={32} />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-green-600 mt-1">
-                  {followUps.filter(f => f.status === "Completed").length}
-                </p>
-              </div>
-              <CheckCircle2 className="text-green-400" size={32} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Filter */}
+      {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-center gap-4">
-            <Filter size={18} className="text-gray-400" />
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex items-center gap-2">
+              <Filter size={18} className="text-gray-500" />
+              <span className="text-sm font-medium text-gray-700">Filter by type:</span>
+            </div>
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger className="w-48">
-                <SelectValue />
+              <SelectTrigger className="w-full md:w-48">
+                <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
@@ -191,95 +238,126 @@ export default function FollowUpsPage() {
         </CardContent>
       </Card>
 
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600">Total Follow-ups</p>
+            <p className="text-2xl font-bold text-gray-900 mt-1">{followUps.length}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600">Pending</p>
+            <p className="text-2xl font-bold text-orange-600 mt-1">
+              {followUps.filter(f => f.status === "Pending").length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600">Scheduled</p>
+            <p className="text-2xl font-bold text-blue-600 mt-1">
+              {followUps.filter(f => f.status === "Scheduled").length}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-sm text-gray-600">Completed</p>
+            <p className="text-2xl font-bold text-green-600 mt-1">
+              {followUps.filter(f => f.status === "Completed").length}
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Follow-ups List */}
-      <div className="grid gap-4">
-        {filteredFollowUps.map((followUp, index) => {
-          const TypeIcon = typeIcons[followUp.type];
-          return (
-            <motion.div
-              key={followUp.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className={`hover:shadow-lg transition-shadow ${
-                followUp.priority === "High" ? "border-l-4 border-l-red-500" : ""
-              }`}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row md:items-start gap-4">
-                    {/* Icon */}
-                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                      followUp.priority === "High" ? "bg-red-100" :
-                      followUp.priority === "Medium" ? "bg-yellow-100" : "bg-green-100"
-                    }`}>
-                      <TypeIcon className={`${
-                        followUp.priority === "High" ? "text-red-600" :
-                        followUp.priority === "Medium" ? "text-yellow-600" : "text-green-600"
-                      }`} size={24} />
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
-                        <div>
-                          <h3 className="font-semibold text-lg text-gray-900">{followUp.leadName}</h3>
-                          <p className="text-sm text-gray-600">{followUp.type}</p>
+      <Card>
+        <CardHeader>
+          <CardTitle>Scheduled Follow-ups ({filteredFollowUps.length})</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredFollowUps.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">No follow-ups scheduled</h3>
+              <p className="mt-1 text-sm text-gray-500">Get started by scheduling a new follow-up.</p>
+              <div className="mt-6">
+                <Button 
+                  className="bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white"
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  <Plus className="mr-2" size={18} />
+                  Schedule Follow-up
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredFollowUps.map((followUp, index) => {
+                const TypeIcon = typeIcons[followUp.type];
+                return (
+                  <motion.div
+                    key={followUp.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex flex-col md:flex-row md:items-center gap-4">
+                      <div className={`p-3 rounded-lg border ${priorityColors[followUp.priority]}`}>
+                        <TypeIcon size={24} />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                          <div>
+                            <h3 className="font-semibold text-lg text-gray-900">{followUp.leadName}</h3>
+                            <p className="text-gray-600">{followUp.notes}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge className={statusColors[followUp.status]}>
+                              {followUp.status}
+                            </Badge>
+                            <Badge className={priorityColors[followUp.priority].replace('border-', '')}>
+                              {followUp.priority}
+                            </Badge>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge className={statusColors[followUp.status]}>
-                            {followUp.status}
-                          </Badge>
-                          <Badge className={priorityColors[followUp.priority]}>
-                            {followUp.priority}
-                          </Badge>
+                        
+                        <div className="flex flex-col md:flex-row md:items-center gap-4 text-sm text-gray-600 mt-3">
+                          <div className="flex items-center">
+                            <Calendar size={14} className="mr-1" />
+                            {followUp.dueDate} at {followUp.dueTime}
+                          </div>
+                          <div className="flex items-center">
+                            <Clock size={14} className="mr-1" />
+                            Last contact: {followUp.lastContact}
+                          </div>
                         </div>
                       </div>
-
-                      <div className="grid md:grid-cols-2 gap-3 mb-3">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Calendar size={16} className="mr-2 text-[#0047BA]" />
-                          <span className="font-medium">Due:</span>
-                          <span className="ml-2">{followUp.dueDate} at {followUp.dueTime}</span>
-                        </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Clock size={16} className="mr-2 text-[#0047BA]" />
-                          <span className="font-medium">Last Contact:</span>
-                          <span className="ml-2">{followUp.lastContact}</span>
-                        </div>
-                      </div>
-
-                      <p className="text-sm text-gray-700 mb-4">
-                        <span className="font-medium">Notes:</span> {followUp.notes}
-                      </p>
 
                       <div className="flex gap-2">
-                        <Button size="sm" variant="outline">
-                          Reschedule
-                        </Button>
-                        <Button size="sm" className="bg-[#0047BA] text-white">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            // In a real app, this would mark as complete
+                            toast.success(`Marked follow-up with ${followUp.leadName} as complete`);
+                          }}
+                        >
+                          <CheckCircle2 size={16} className="mr-1" />
                           Mark Complete
                         </Button>
-                        {followUp.type === "Phone Call" && (
-                          <Button size="sm" variant="outline">
-                            <Phone size={14} className="mr-1" />
-                            Call Now
-                          </Button>
-                        )}
-                        {followUp.type === "Email" && (
-                          <Button size="sm" variant="outline">
-                            <Mail size={14} className="mr-1" />
-                            Send Email
-                          </Button>
-                        )}
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
-      </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

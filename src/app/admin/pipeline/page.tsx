@@ -1,33 +1,105 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DollarSign, User, Calendar } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function PipelinePage() {
-  const [kanbanData] = useState({
-    "Lead": [
-      { id: 1, name: "Rajesh Kumar", value: "₹3,00,000", capacity: "5 kW", date: "Jan 15" },
-      { id: 2, name: "Priya Sharma", value: "₹1,80,000", capacity: "3 kW", date: "Jan 14" },
-      { id: 3, name: "Vikram Singh", value: "₹2,40,000", capacity: "4 kW", date: "Jan 11" }
-    ],
-    "Qualified": [
-      { id: 4, name: "Sneha Reddy", value: "₹4,20,000", capacity: "7 kW", date: "Jan 12" },
-      { id: 5, name: "Kavita Desai", value: "₹3,60,000", capacity: "6 kW", date: "Jan 10" }
-    ],
-    "Quote Sent": [
-      { id: 6, name: "Amit Patel", value: "₹60,00,000", capacity: "100 kW", date: "Jan 13" },
-      { id: 7, name: "Arjun Mehta", value: "₹9,00,000", capacity: "15 kW", date: "Jan 09" }
-    ],
-    "Negotiation": [
-      { id: 8, name: "Meera Iyer", value: "₹1,20,000", capacity: "2 kW", date: "Jan 08" }
-    ],
-    "Won": [
-      { id: 9, name: "Rohit Kapoor", value: "₹6,00,000", capacity: "10 kW", date: "Jan 07" }
-    ]
+  const router = useRouter();
+  const [kanbanData, setKanbanData] = useState<Record<string, any[]>>({
+    "Lead": [],
+    "Qualified": [],
+    "Quote Sent": [],
+    "Negotiation": [],
+    "Won": []
   });
+  const [loading, setLoading] = useState(true);
+
+  // Load leads from API and organize them into pipeline stages
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        const response = await fetch('/api/leads/bulk');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Organize leads into pipeline stages based on their status
+          const organizedData: Record<string, any[]> = {
+            "Lead": [],
+            "Qualified": [],
+            "Quote Sent": [],
+            "Negotiation": [],
+            "Won": []
+          };
+
+          data.data.forEach((lead: any) => {
+            // Map lead status to pipeline stages
+            switch (lead.status) {
+              case "New":
+              case "Contacted":
+                organizedData["Lead"].push({
+                  id: lead.id,
+                  name: lead.name,
+                  value: `₹${lead.monthlyBill || "0"}`,
+                  capacity: `${lead.suggestedKW || "0"} kW`,
+                  date: "Recent" // In a real app, this would be the lead creation date
+                });
+                break;
+              case "Proposal Sent":
+                organizedData["Quote Sent"].push({
+                  id: lead.id,
+                  name: lead.name,
+                  value: `₹${lead.monthlyBill || "0"}`,
+                  capacity: `${lead.suggestedKW || "0"} kW`,
+                  date: "Recent"
+                });
+                break;
+              case "Follow-up":
+                organizedData["Negotiation"].push({
+                  id: lead.id,
+                  name: lead.name,
+                  value: `₹${lead.monthlyBill || "0"}`,
+                  capacity: `${lead.suggestedKW || "0"} kW`,
+                  date: "Recent"
+                });
+                break;
+              case "Won":
+                organizedData["Won"].push({
+                  id: lead.id,
+                  name: lead.name,
+                  value: `₹${lead.monthlyBill || "0"}`,
+                  capacity: `${lead.suggestedKW || "0"} kW`,
+                  date: "Recent"
+                });
+                break;
+              default:
+                // Default to Lead stage
+                organizedData["Lead"].push({
+                  id: lead.id,
+                  name: lead.name,
+                  value: `₹${lead.monthlyBill || "0"}`,
+                  capacity: `${lead.suggestedKW || "0"} kW`,
+                  date: "Recent"
+                });
+            }
+          });
+
+          setKanbanData(organizedData);
+        }
+      } catch (error) {
+        console.error('Error fetching leads:', error);
+        toast.error('Failed to load pipeline data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLeads();
+  }, []);
 
   const stageColors: Record<string, string> = {
     "Lead": "bg-blue-500",
@@ -36,6 +108,19 @@ export default function PipelinePage() {
     "Negotiation": "bg-yellow-500",
     "Won": "bg-green-500"
   };
+
+  const handleViewDetails = (dealId: number) => {
+    // Navigate to the lead details page
+    router.push(`/admin/leads/${dealId}`);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#0047BA]"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -49,7 +134,7 @@ export default function PipelinePage() {
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {Object.entries(kanbanData).map(([stage, deals]) => {
           const totalValue = deals.reduce((sum, deal) => {
-            const value = parseInt(deal.value.replace(/[₹,]/g, ''));
+            const value = parseInt(deal.value.replace(/[₹,]/g, '')) || 0;
             return sum + value;
           }, 0);
           
@@ -99,7 +184,12 @@ export default function PipelinePage() {
                         {deal.date}
                       </div>
                       <div className="mt-3 pt-3 border-t">
-                        <Button size="sm" variant="outline" className="w-full text-xs">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="w-full text-xs"
+                          onClick={() => handleViewDetails(deal.id)}
+                        >
                           View Details
                         </Button>
                       </div>
@@ -116,7 +206,7 @@ export default function PipelinePage() {
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="p-4">
           <p className="text-sm text-blue-900">
-            <strong>Tip:</strong> Drag and drop cards between columns to update deal status. Click on a card to view full details and add notes.
+            <strong>Tip:</strong> Click on a card to view full details and add notes.
           </p>
         </CardContent>
       </Card>

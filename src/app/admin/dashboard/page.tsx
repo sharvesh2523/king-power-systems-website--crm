@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,12 +9,15 @@ import {
   FileText,
   TrendingUp,
   CheckCircle2,
+  CheckSquare,
   Clock,
   DollarSign,
   Activity
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const stats = [
     {
       title: "Total Leads",
@@ -30,15 +34,15 @@ export default function DashboardPage() {
       color: "bg-green-500"
     },
     {
-      title: "Pending Quotes",
+      title: "Pending Tasks",
       value: "32",
       change: "+5.1%",
-      icon: FileText,
+      icon: CheckSquare,
       color: "bg-orange-500"
     },
     {
       title: "Monthly Revenue",
-      value: "₹45.2L",
+      value: "45.2L",
       change: "+23.4%",
       icon: DollarSign,
       color: "bg-purple-500"
@@ -188,21 +192,26 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="p-4 bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white rounded-lg hover:opacity-90 transition-opacity">
+            <button 
+              onClick={() => router.push('/admin/leads')}
+              className="p-4 bg-gradient-to-r from-[#0047BA] to-[#1A5FE8] text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
               <UserPlus className="mx-auto mb-2" size={24} />
               <span className="text-sm font-medium">Add Lead</span>
             </button>
-            <button className="p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:opacity-90 transition-opacity">
-              <FileText className="mx-auto mb-2" size={24} />
-              <span className="text-sm font-medium">Create Quote</span>
-            </button>
-            <button className="p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:opacity-90 transition-opacity">
-              <CheckCircle2 className="mx-auto mb-2" size={24} />
+            <button 
+              onClick={() => router.push('/admin/tasks')}
+              className="p-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <CheckSquare className="mx-auto mb-2" size={24} />
               <span className="text-sm font-medium">Add Task</span>
             </button>
-            <button className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity">
-              <DollarSign className="mx-auto mb-2" size={24} />
-              <span className="text-sm font-medium">New Invoice</span>
+            <button 
+              onClick={() => router.push('/admin/follow-ups')}
+              className="p-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <CheckCircle2 className="mx-auto mb-2" size={24} />
+              <span className="text-sm font-medium">Add Follow-up</span>
             </button>
           </div>
         </CardContent>

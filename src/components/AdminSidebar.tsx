@@ -11,7 +11,6 @@ import {
   FileText,
   Database,
   CheckSquare,
-  CreditCard,
   LogOut,
   Menu,
   X
@@ -30,10 +29,8 @@ export default function AdminSidebar() {
     { href: "/admin/leads", label: "Lead Management", icon: UserPlus },
     { href: "/admin/follow-ups", label: "Follow-Up Reminders", icon: CheckSquare },
     { href: "/admin/pipeline", label: "Sales Pipeline", icon: Kanban },
-    { href: "/admin/quotes", label: "Quotations", icon: FileText },
     { href: "/admin/customers", label: "Customers", icon: Users },
     { href: "/admin/tasks", label: "Tasks", icon: CheckSquare },
-    { href: "/admin/billing", label: "Billing & Invoices", icon: CreditCard },
   ];
 
   const handleSignOut = async () => {

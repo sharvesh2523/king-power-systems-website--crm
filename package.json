@@ -6,7 +6,8 @@
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "create-admin": "node scripts/create-admin.js"
     },
     "dependencies": {
         "@babel/parser": "^7.28.5",
@@ -95,6 +96,7 @@
         "three": "^0.178.0",
         "three-globe": "^2.43.0",
         "vaul": "^1.1.2",
+        "xlsx": "^0.18.5",
         "zod": "^4.1.12"
     },
     "devDependencies": {
@@ -105,6 +107,7 @@
         "@types/react-dom": "^19",
         "@types/react-syntax-highlighter": "^15.5.13",
         "@types/three": "^0.178.0",
+        "dotenv": "^17.2.3",
         "eslint": "^9.38.0",
         "eslint-config-next": "^16.0.1",
         "tailwindcss": "^4",

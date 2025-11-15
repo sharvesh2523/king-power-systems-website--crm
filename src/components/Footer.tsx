@@ -40,12 +40,12 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-white/80 transition-colors">About Us</Link></li>
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Services</Link></li>
-              <li><Link href="/projects" className="hover:text-white/80 transition-colors">Projects</Link></li>
-              <li><Link href="/subsidy" className="hover:text-white/80 transition-colors">PM Surya Ghar Subsidy</Link></li>
-              <li><Link href="/testimonials" className="hover:text-white/80 transition-colors">Testimonials</Link></li>
-              <li><Link href="/contact" className="hover:text-white/80 transition-colors">Contact Us</Link></li>
+              <li><Link href="#about" className="hover:text-white/80 transition-colors">About Us</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Services</Link></li>
+              <li><Link href="#projects" className="hover:text-white/80 transition-colors">Projects</Link></li>
+              <li><Link href="#subsidy" className="hover:text-white/80 transition-colors">PM Surya Ghar Subsidy</Link></li>
+              <li><Link href="#testimonials" className="hover:text-white/80 transition-colors">Testimonials</Link></li>
+              <li><Link href="#contact" className="hover:text-white/80 transition-colors">Contact Us</Link></li>
             </ul>
           </div>
 
@@ -53,12 +53,12 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-semibold mb-4">Our Services</h3>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Residential Solar</Link></li>
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Commercial Solar</Link></li>
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Industrial Solar</Link></li>
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Solar Pumps</Link></li>
-              <li><Link href="/services" className="hover:text-white/80 transition-colors">Battery Storage</Link></li>
-              <li><Link href="/roi-calculator" className="hover:text-white/80 transition-colors">ROI Calculator</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Residential Solar</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Commercial Solar</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Industrial Solar</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Solar Pumps</Link></li>
+              <li><Link href="#services" className="hover:text-white/80 transition-colors">Battery Storage</Link></li>
+              <li><Link href="#roi-calculator" className="hover:text-white/80 transition-colors">ROI Calculator</Link></li>
             </ul>
           </div>
 
