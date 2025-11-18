@@ -7,13 +7,17 @@ import { motion } from "framer-motion";
 import { Sun, Zap, Shield, Users, TrendingUp, Award, Clock, HeadphonesIcon, Target, Eye, Heart, Building2, Factory, Droplets, Battery, Wrench, LineChart, IndianRupee, MapPin, Calculator, Star, Quote } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import ImageModal from "@/components/ImageModal";
+import GalleryModal from "@/components/GalleryModal";
+import ServiceModal from "@/components/ServiceModal";
+import CountUp from "@/components/CountUp";
 
 export default function HomePage() {
   // ROI Calculator state
@@ -32,6 +36,109 @@ export default function HomePage() {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [projectFilter, setProjectFilter] = useState("all");
   const [expandedProject, setExpandedProject] = useState<string | null>(null);
+  const [showResidentialModal, setShowResidentialModal] = useState(false);
+  const [showCommercialGallery, setShowCommercialGallery] = useState(false);
+  const [showIndustrialGallery, setShowIndustrialGallery] = useState(false);
+  const [showBatteryModal, setShowBatteryModal] = useState(false);
+  const [showStabilizerModal, setShowStabilizerModal] = useState(false);
+  const [showSolarPanelModal, setShowSolarPanelModal] = useState(false);
+  const [showOnlineUpsGallery, setShowOnlineUpsGallery] = useState(false);
+  const [showUpsInverterGallery, setShowUpsInverterGallery] = useState(false);
+  const [showAcDriveModal, setShowAcDriveModal] = useState(false);
+
+  // Testimonial animation effect
+  useEffect(() => {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') return;
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Get testimonial cards
+    const card1 = document.querySelector('.testimonial-card-1');
+    const card2 = document.querySelector('.testimonial-card-2');
+    const card3 = document.querySelector('.testimonial-card-3');
+    const card4 = document.querySelector('.testimonial-card-4');
+    
+    // If reduced motion is preferred, show all cards immediately without animation
+    if (prefersReducedMotion) {
+      if (card1) {
+        card1.classList.add('animate-in');
+        card1.classList.add('hover-effect');
+      }
+      if (card2) {
+        card2.classList.add('animate-in');
+        card2.classList.add('hover-effect');
+      }
+      if (card3) {
+        card3.classList.add('animate-in');
+        card3.classList.add('hover-effect');
+      }
+      if (card4) {
+        card4.classList.add('animate-in');
+        card4.classList.add('hover-effect');
+      }
+      return;
+    }
+    
+    // Add hover effect class to all cards
+    if (card1) card1.classList.add('hover-effect');
+    if (card2) card2.classList.add('hover-effect');
+    if (card3) card3.classList.add('hover-effect');
+    if (card4) card4.classList.add('hover-effect');
+
+    // Create IntersectionObserver
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Animate cards from left
+          if (card1) {
+            setTimeout(() => {
+              card1.classList.add('animate-in');
+            }, 0);
+          }
+          
+          if (card2) {
+            setTimeout(() => {
+              card2.classList.add('animate-in');
+            }, 50);
+          }
+          
+          // Animate cards from right
+          if (card3) {
+            setTimeout(() => {
+              card3.classList.add('animate-in');
+            }, 0);
+          }
+          
+          if (card4) {
+            setTimeout(() => {
+              card4.classList.add('animate-in');
+            }, 50);
+          }
+          
+          // Stop observing once animation is triggered
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      threshold: 0.1, // Trigger when 10% of the section is visible
+      rootMargin: '0px 0px -50px 0px' // Trigger slightly before section is fully visible
+    });
+
+    // Start observing the testimonials section
+    const testimonialsSection = document.getElementById('testimonials');
+    if (testimonialsSection) {
+      observer.observe(testimonialsSection);
+    }
+
+    // Cleanup function
+    return () => {
+      if (testimonialsSection) {
+        observer.unobserve(testimonialsSection);
+      }
+    };
+  }, []); // Empty dependency array means this runs once on mount
 
   // ROI Calculator calculations
   const systemCostPerKW = 60000;
@@ -82,7 +189,7 @@ export default function HomePage() {
       <Hero />
       
       {/* About Section */}
-      <section id="about" className="py-20 bg-white">
+      <section id="about" className="py-20 bg-gradient-to-br from-white to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -177,8 +284,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Statistics Section */}
-      <section className="py-16 bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Our Impact in Numbers Section */}
+      <section className="py-16 bg-gradient-to-br from-white to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -186,71 +293,227 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Our <span className="gradient-text">Achievements</span>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-black">
+              OUR IMPACT IN NUMBERS
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="bg-white rounded-xl p-6 shadow-md text-center"
-            >
-              <div className="text-3xl font-bold text-[#0047BA] mb-2">200+</div>
-              <div className="text-gray-600">Solar Panels Installed</div>
-            </motion.div>
+          <div className="max-w-6xl mx-auto">
+            {/* Desktop Layout - 4 items in one row */}
+            <div className="hidden md:grid grid-cols-4 gap-8">
+              {/* Stat 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div 
+                  className="text-5xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={200} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Solar Panels Installed</div>
+              </motion.div>
+              
+              {/* Stat 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-5xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={25} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Years Experience</div>
+              </motion.div>
+              
+              {/* Stat 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-5xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={600} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Customers Served</div>
+              </motion.div>
+              
+              {/* Stat 4 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.45 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-5xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={100} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Percent Satisfaction</div>
+              </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="bg-white rounded-xl p-6 shadow-md text-center"
-            >
-              <div className="text-3xl font-bold text-[#0047BA] mb-2">25+</div>
-              <div className="text-gray-600">Years Experience</div>
-            </motion.div>
+            {/* Tablet Layout - 2 per row */}
+            <div className="hidden sm:grid md:hidden grid-cols-2 gap-8">
+              {/* Stat 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div 
+                  className="text-4xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={200} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Solar Panels Installed</div>
+              </motion.div>
+              
+              {/* Stat 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-4xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={25} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Years Experience</div>
+              </motion.div>
+              
+              {/* Stat 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-4xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={600} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Customers Served</div>
+              </motion.div>
+              
+              {/* Stat 4 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.45 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-4xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={100} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Percent Satisfaction</div>
+              </motion.div>
+            </div>
             
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="bg-white rounded-xl p-6 shadow-md text-center"
-            >
-              <div className="text-3xl font-bold text-[#0047BA] mb-2">600+</div>
-              <div className="text-gray-600">Customer Served</div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-xl p-6 shadow-md text-center"
-            >
-              <div className="text-3xl font-bold text-[#0047BA] mb-2">All Over</div>
-              <div className="text-gray-600">Tamilnadu</div>
-            </motion.div>
-            
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-              className="bg-white rounded-xl p-6 shadow-md text-center"
-            >
-              <div className="text-3xl font-bold text-[#0047BA] mb-2">Quality</div>
-              <div className="text-gray-600">Products from Leading Brands</div>
-            </motion.div>
+            {/* Mobile Layout - 1 per row (center align) */}
+            <div className="sm:hidden space-y-8">
+              {/* Stat 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center"
+              >
+                <div 
+                  className="text-3xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={200} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Solar Panels Installed</div>
+              </motion.div>
+              
+              {/* Stat 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.15 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-3xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={25} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Years Experience</div>
+              </motion.div>
+              
+              {/* Stat 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-3xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={600} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Customers Served</div>
+              </motion.div>
+              
+              {/* Stat 4 */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.45 }}
+                className="text-center"
+              >
+                <div 
+                  className="text-3xl font-bold text-black mb-2"
+                  aria-live="polite"
+                >
+                  <CountUp end={100} duration={0.9} />
+                </div>
+                <div className="text-gray-600">Percent Satisfaction</div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Services Section */}
-      <section id="services" className="py-20 bg-white">
+      <section id="services" className="py-20 bg-gradient-to-br from-gray-50 to-blue-50">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -258,11 +521,14 @@ export default function HomePage() {
             viewport={{ once: true }}
             className="text-center max-w-4xl mx-auto mb-16"
           >
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0047BA] to-[#1A5FE8] rounded-full mb-6 mx-auto">
+              <Wrench className="text-white" size={32} />
+            </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="gradient-text">Services</span>
+              Our <span className="gradient-text">Services</span>
             </h2>
             <p className="text-xl text-gray-600">
-              From wiring and distribution panels to energy audits and maintenance, we provide end-to-end electrical services handled by experienced professionals. Our focus is on safety, reliability, and long-term performance.
+              Comprehensive power solutions for residential, commercial, and industrial needs
             </p>
           </motion.div>
 
@@ -273,42 +539,32 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
-              >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">SOLAR PANELS</h3>
-                <p className="text-gray-700 mb-4">
-                  500*725 Wp solar panels (DCR / NONDCR), BIFACIAL Solar Panels and N-TYPE Solar Panels
-                </p>
-                <p className="font-semibold mb-2">BRANDS:</p>
-                <p className="text-gray-700">NOVASYS, PREMIER, LOOM. (DCR & NON-DCR)</p>
-              </motion.div>
-
-              {/* Solar Water Pumps */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
-              >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">SOLAR WATER PUMPS</h3>
-                <p className="text-gray-700 mb-4">
-                  PLDC MOTOR/PUMP (NON-DCR= 450-725Wp), BIFACIAL SOLAR PANEL, N-TYPE SOLAR PANEL (INTERNAL & EXTERNAL DRIVES)
-                </p>
-              </motion.div>
-
-              {/* UPS/Inverter */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
                 transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => setShowSolarPanelModal(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">UPS/ INVERTER</h3>
-                <p className="text-gray-700">
-                  Microtek, EXIDE Amaron and LUMINOUS
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">SOLAR PANELS</h3>
+                <p className="text-gray-700 mb-4">
+                  High-efficiency solar panels for residential and commercial energy generation.
                 </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Monocrystalline Panels
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Polycrystalline Panels
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Thin-Film Technology
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    25-Year Warranty
+                  </li>
+                </ul>
               </motion.div>
 
               {/* Battery */}
@@ -316,12 +572,31 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => setShowBatteryModal(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">BATTERY</h3>
-                <p className="text-gray-700">
-                  MICROTEK, EXIDE (LEAD-ACID BATTERY) + LITHIUM BATTERY
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">BATTERY</h3>
+                <p className="text-gray-700 mb-4">
+                  High-performance batteries for reliable power backup.
                 </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Tubular Batteries
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    SMF Batteries
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Lithium-ion Batteries
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Custom Solutions
+                  </li>
+                </ul>
               </motion.div>
 
               {/* Stabilizer */}
@@ -330,12 +605,100 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => setShowStabilizerModal(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">STABILIZER</h3>
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">STABILIZER</h3>
                 <p className="text-gray-700 mb-4">
-                  Krykard make (DOMESTIC/ INDUSTRIAL) (RATING=1KW-500KVA)
+                  Voltage stabilization for sensitive electronic equipment.
                 </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Servo Stabilizers
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Relay Stabilizers
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Digital Display
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Wide Voltage Range
+                  </li>
+                </ul>
+              </motion.div>
+
+              {/* Solar Water Pumps */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => {
+                  // Show image popup for solar water pump
+                  const imageModal = document.createElement('div');
+                  imageModal.innerHTML = `
+                    <div id="solar-water-pump-modal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4">
+                      <div class="relative max-w-4xl max-h-full">
+                        <button id="close-modal" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <img src="/assets/images/hero/solar_water_pump.png" alt="Solar Water Pump" class="max-w-full max-h-full rounded-lg" />
+                      </div>
+                    </div>
+                  `;
+                  document.body.appendChild(imageModal);
+                  
+                  // Add event listener to close modal
+                  const closeModalButton = document.getElementById('close-modal');
+                  if (closeModalButton) {
+                    closeModalButton.addEventListener('click', () => {
+                      const modal = document.getElementById('solar-water-pump-modal');
+                      if (modal) {
+                        modal.remove();
+                      }
+                    });
+                  }
+                  
+                  // Close modal when clicking outside
+                  const modal = document.getElementById('solar-water-pump-modal');
+                  if (modal) {
+                    modal.addEventListener('click', (e) => {
+                      if (e.target instanceof HTMLElement && e.target.id === 'solar-water-pump-modal') {
+                        modal.remove();
+                      }
+                    });
+                  }
+                }}
+              >
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">SOLAR WATER PUMPS</h3>
+                <p className="text-gray-700 mb-4">
+                  Efficient solar-powered water pumping for agriculture and irrigation.
+                </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Submersible Pumps
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Surface Pumps
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    DC & AC Systems
+                  </li>
+                  <li className="flex items-center">
+                    <div className="w-2 h-2 bg-[#0047BA] rounded-full mr-3"></div>
+                    Remote Monitoring
+                  </li>
+                </ul>
               </motion.div>
 
               {/* Solar Inverters */}
@@ -343,10 +706,11 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: 0.2 }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
+                transition={{ delay: 0.1 }}
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => setShowUpsInverterGallery(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">SOLAR INVERTERS</h3>
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">SOLAR INVERTERS</h3>
                 <p className="text-gray-700 mb-4">
                   DEYE, VSOLE, EVVO, POLYCOB RATING-(1-150KWP) STRING INVERTER
                 </p>
@@ -357,9 +721,10 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg"
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02]"
+                onClick={() => setShowAcDriveModal(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">AC DRIVES/ VFT FOR INDUSTRIAL MOTORS</h3>
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">AC DRIVES/ VFT FOR INDUSTRIAL MOTORS</h3>
                 <p className="text-gray-700">
                   PLDC MOTOR IN-BUILD / EXTERNAL DRIVE
                 </p>
@@ -371,9 +736,10 @@ export default function HomePage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.1 }}
-                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg md:col-span-2 lg:col-span-1"
+                className="bg-white rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 hover:scale-[1.02] md:col-span-2 lg:col-span-1"
+                onClick={() => setShowOnlineUpsGallery(true)}
               >
-                <h3 className="text-2xl font-bold mb-4 text-[#0047BA]">ONLINE UPS</h3>
+                <h3 className="text-2xl font-bold mb-4 text-[#0047BA] transition-colors duration-300 group-hover:text-[#1A5FE8]">ONLINE UPS</h3>
                 <p className="text-gray-700">
                   BRANDED UPS= SMF, EXIDE AND AMARON
                 </p>
@@ -384,7 +750,12 @@ export default function HomePage() {
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 bg-white">
+      <section id="projects" className="py-20 bg-white" style={{
+        backgroundImage: 'url(/assets/images/hero/heropage2.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}>
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -525,7 +896,7 @@ export default function HomePage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                    onClick={() => setExpandedProject("residential")}
+                    onClick={() => setShowResidentialModal(true)}
                   >
                     <div className="flex justify-between items-start mb-4">
                       <h2 className="text-2xl font-bold text-[#0047BA]">RESIDENTIAL</h2>
@@ -553,7 +924,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ delay: 0.1 }}
                     className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                    onClick={() => setExpandedProject("commercial")}
+                    onClick={() => setShowCommercialGallery(true)}
                   >
                     <div className="flex justify-between items-start mb-4">
                       <h2 className="text-2xl font-bold text-[#0047BA]">COMMERCIAL</h2>
@@ -581,7 +952,7 @@ export default function HomePage() {
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 }}
                     className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
-                    onClick={() => setExpandedProject("industrial")}
+                    onClick={() => setShowIndustrialGallery(true)}
                   >
                     <div className="flex justify-between items-start mb-4">
                       <h2 className="text-2xl font-bold text-[#0047BA]">INDUSTRIAL</h2>
@@ -859,12 +1230,7 @@ export default function HomePage() {
       {/* Testimonials Section */}
       <section id="testimonials" className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center max-w-4xl mx-auto mb-16"
-          >
+          <div className="text-center max-w-4xl mx-auto mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               <span className="gradient-text">Testimonials</span>
             </h2>
@@ -874,83 +1240,40 @@ export default function HomePage() {
             <p className="text-lg text-gray-700 mt-4">
               At King Power Systems, we take pride in building lasting relationships with our customers by delivering dependable electrical and solar solutions backed by years of expertise.
             </p>
-          </motion.div>
+          </div>
 
-          <div className="max-w-6xl mx-auto space-y-16">
-            {/* Residential Clients */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-3xl font-bold mb-8 text-[#0047BA]">Residential Clients</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "We recently installed a solar power system from King Power Systems, and it's been a game-changer for our home. The installation was quick, the team was very professional, and our electricity bills have dropped drastically. Highly recommended!"
-                  </p>
-                  <p className="font-semibold">– Suresh Kumar, Homeowner</p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "I purchased an inverter and battery combo from King Power Systems. The quality is excellent, and their after-sales support is top-notch. Great service from a trustworthy company!"
-                  </p>
-                  <p className="font-semibold">– S. Periyasamy, House owner</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Commercial Clients */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-3xl font-bold mb-8 text-[#0047BA]">Commercial Clients</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "King Power Systems handled the solar installation for our office. Their team guided us through every step — from design to execution — and we are now saving significantly on power costs."
-                  </p>
-                  <p className="font-semibold">– Saravanan, Business Owner</p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "We've been purchasing UPS systems and stabilizers from King Power Systems for several years. Their reliability and quick service make them our go-to supplier."
-                  </p>
-                  <p className="font-semibold">– Palanisamy</p>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Industrial Clients */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-3xl font-bold mb-8 text-[#0047BA]">Industrial Clients</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "Our factory required a reliable power backup solution, and King Power Systems delivered exactly what we needed. Excellent coordination, high-quality equipment, and timely delivery."
-                  </p>
-                  <p className="font-semibold">– SM Dying</p>
-                </div>
-                
-                <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg">
-                  <p className="text-gray-700 italic mb-4">
-                    "We use solar water pumps from King Power Systems for our agricultural operations. The performance and energy savings have been outstanding."
-                  </p>
-                  <p className="font-semibold">– K. Murugan, Farm Owner</p>
-                </div>
-              </div>
-            </motion.div>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Testimonial Card 1 */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg testimonial-card testimonial-card-1">
+              <p className="text-gray-700 italic mb-4">
+                "We recently installed a solar power system from King Power Systems, and it's been a game-changer for our home. The installation was quick, the team was very professional, and our electricity bills have dropped drastically. Highly recommended!"
+              </p>
+              <p className="font-semibold">– Suresh Kumar, Homeowner</p>
+            </div>
+            
+            {/* Testimonial Card 2 */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg testimonial-card testimonial-card-2">
+              <p className="text-gray-700 italic mb-4">
+                "I purchased an inverter and battery combo from King Power Systems. The quality is excellent, and their after-sales support is top-notch. Great service from a trustworthy company!"
+              </p>
+              <p className="font-semibold">– S. Periyasamy, House owner</p>
+            </div>
+            
+            {/* Testimonial Card 3 */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg testimonial-card testimonial-card-3">
+              <p className="text-gray-700 italic mb-4">
+                "King Power Systems handled the solar installation for our office. Their team guided us through every step — from design to execution — and we are now saving significantly on power costs."
+              </p>
+              <p className="font-semibold">– Saravanan, Business Owner</p>
+            </div>
+            
+            {/* Testimonial Card 4 */}
+            <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-6 shadow-lg testimonial-card testimonial-card-4">
+              <p className="text-gray-700 italic mb-4">
+                "We've been purchasing UPS systems and stabilizers from King Power Systems for several years. Their reliability and quick service make them our go-to supplier."
+              </p>
+              <p className="font-semibold">– Palanisamy</p>
+            </div>
           </div>
         </div>
       </section>
@@ -1061,17 +1384,21 @@ export default function HomePage() {
               className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 shadow-lg mb-16"
             >
               <h3 className="text-2xl font-bold mb-6 text-center">MAP SECTION</h3>
-              <div className="bg-gray-200 rounded-xl overflow-hidden h-[400px] flex items-center justify-center">
-                <iframe
-                  src="https://maps.app.goo.gl/EjL19wkkdu3nE86w6?g_st=iw"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
-              </div>
+              <a 
+                href="https://www.google.com/maps/search/?api=1&query=King+Power+Systems+Karur" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block bg-gray-200 rounded-xl overflow-hidden h-[400px] flex flex-col items-center justify-center relative cursor-pointer transition-all duration-300 hover:shadow-lg hover:brightness-105"
+              >
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </div>
+                <div className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm transition-opacity duration-300 hover:opacity-100 opacity-70">
+                  Click to open in Google Maps
+                </div>
+              </a>
             </motion.div>
 
             {/* Company Details */}
@@ -1102,6 +1429,151 @@ export default function HomePage() {
       </section>
 
       <Footer />
+      
+      {/* Residential Gallery Modal */}
+      <GalleryModal
+        isOpen={showResidentialModal}
+        onClose={() => setShowResidentialModal(false)}
+        images={[
+          {
+            src: "/assets/images/hero/residential-5kwp-erode.jpg",
+            alt: "5 KWP Solar Panels - Erode",
+            title: "5 KWP Solar Panels",
+            description: "Erode (Residential)"
+          },
+          {
+            src: "/assets/images/hero/residential-3kwp-erode.jpg",
+            alt: "3 KWP Solar Panels - Erode",
+            title: "3 KWP Solar Panels",
+            description: "Erode (Residential)"
+          }
+        ]}
+      />
+
+      {/* Commercial Gallery Modal */}
+      <GalleryModal
+        isOpen={showCommercialGallery}
+        onClose={() => setShowCommercialGallery(false)}
+        images={[
+          {
+            src: "/assets/images/hero/commercial-90kwp-coimbatore.jpg",
+            alt: "90 KWP Solar Panels - Coimbatore",
+            title: "90 KWP Solar Panels",
+            description: "Coimbatore (Commercial)"
+          },
+          {
+            src: "/assets/images/hero/commercial-100kwp-namakkal.jpg",
+            alt: "100 KWP Solar Panels - Namakkal",
+            title: "100 KWP Solar Panels",
+            description: "Namakkal (Commercial)"
+          }
+        ]}
+      />
+
+      {/* Battery Modal */}
+      <ServiceModal
+        isOpen={showBatteryModal}
+        onClose={() => setShowBatteryModal(false)}
+        imageUrl={encodeURI("/assets/images/hero/EXIDE BATTERY.jpeg")}
+        altText="EXIDE Battery"
+        title="EXIDE Battery"
+        description="EXIDE Battery – Lead Acid & Lithium Battery Options"
+      />
+
+      {/* Stabilizer Modal */}
+      <ServiceModal
+        isOpen={showStabilizerModal}
+        onClose={() => setShowStabilizerModal(false)}
+        imageUrl={encodeURI("/assets/images/hero/KRYKARD STABILIZER 1.jpg")}
+        altText="KryKard Stabilizer"
+        title="KryKard Stabilizer"
+        description="KryKard Industrial & Domestic Stabilizers (1KW – 500KVA)"
+      />
+
+      {/* Online UPS Gallery Modal */}
+      <GalleryModal
+        isOpen={showOnlineUpsGallery}
+        onClose={() => setShowOnlineUpsGallery(false)}
+        images={[
+          {
+            src: encodeURI("/assets/images/hero/LUMINOUS UPS.jpeg"),
+            alt: "Luminous Online UPS",
+            title: "Luminous Online UPS",
+            description: "Luminous branded online UPS systems with reliable power backup"
+          },
+          {
+            src: encodeURI("/assets/images/hero/EXIDE UPS.jpeg"),
+            alt: "Exide Online UPS",
+            title: "Exide Online UPS",
+            description: "Exide branded online UPS systems for continuous power supply"
+          },
+          {
+            src: encodeURI("/assets/images/hero/AMARON UPS.jpeg"),
+            alt: "Amaron Online UPS",
+            title: "Amaron Online UPS",
+            description: "Amaron branded online UPS systems for uninterrupted power"
+          }
+        ]}
+      />
+
+      {/* Solar Inverters Gallery Modal */}
+      <GalleryModal
+        isOpen={showUpsInverterGallery}
+        onClose={() => setShowUpsInverterGallery(false)}
+        images={[
+          {
+            src: encodeURI("/assets/images/hero/VSOLAR SOLAR INVERTER 1.webp"),
+            alt: "V-Solar Solar Inverter",
+            title: "V-Solar Solar Inverter",
+            description: "High-Efficiency Solar Power Conversion"
+          },
+          {
+            src: encodeURI("/assets/images/hero/POYCAB SOLAR INVERTER.webp"),
+            alt: "Poycab Solar Inverter",
+            title: "Poycab Solar Inverter",
+            description: "Reliable Solar Inverter for Homes & Industries"
+          },
+          {
+            src: encodeURI("/assets/images/hero/EVVO SOLAR INVERTER.JPG"),
+            alt: "EVVO Solar Inverter",
+            title: "EVVO Solar Inverter",
+            description: "Advanced MPPT Solar Inverter System"
+          }
+        ]}
+      />
+
+      {/* AC Drive Modal */}
+      <ServiceModal
+        isOpen={showAcDriveModal}
+        onClose={() => setShowAcDriveModal(false)}
+        imageUrl={encodeURI("/assets/images/hero/ac drive.jpg")}
+        altText="AC Drive Service"
+        title="AC Drive Service"
+        description="AC Drive / VFD — Industrial Motor Variable Frequency Drive System"
+      />
+
+      {/* Solar Panel Modal */}
+      <ServiceModal
+        isOpen={showSolarPanelModal}
+        onClose={() => setShowSolarPanelModal(false)}
+        imageUrl={encodeURI("/assets/images/hero/solar panel.jpg")}
+        altText="Solar Panel Service"
+        title="Solar Panels"
+        description="High-efficiency solar panels for residential and commercial energy generation."
+      />
+
+      {/* Industrial Gallery Modal */}
+      <GalleryModal
+        isOpen={showIndustrialGallery}
+        onClose={() => setShowIndustrialGallery(false)}
+        images={[{
+            src: "/assets/images/hero/commercial-100kwp-namakkal.jpg",
+            alt: "100 KWP Solar Panels - Namakkal",
+            title: "100 KWP Solar Panels",
+            description: "Namakkal (Industrial)"
+          }
+        ]}
+      />
     </div>
   );
 }
